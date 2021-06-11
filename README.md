@@ -16,7 +16,6 @@
 [![apps](https://img.shields.io/badge/app-kenzok8-violet.svg?style=flat&logo=appveyor)](https://github.com/kenzok8)
 
 
-
 # 如何使用
 1. fork项目
 2. 在secrets中创建RELEASES_TOKEN，一般一次编译要2~4小时，所以要创建一个github发布用的token。
