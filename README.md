@@ -1,8 +1,8 @@
-![license](https://img.shields.io/github/license/roacn/Actions-OpenWrt-Lede-N1?color=ff69b4)
-![N1_plus](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/single_plus.yml/badge.svg)
-![N1_mini](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/single_mini.yml/badge.svg)
-![Build lede](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/N1_Multi.yml/badge.svg)
-![code-size](https://img.shields.io/github/languages/code-size/roacn/Actions-OpenWrt-Lede-N1?color=blueviolet)
+![license](https://img.shields.io/github/license/stanlyshi/Actions-OpenWrt-Lede-N1?color=ff69b4)
+![N1_plus](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/single_plus.yml/badge.svg)
+![N1_mini](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/single_mini.yml/badge.svg)
+![Build lede](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/N1_Multi.yml/badge.svg)
+![code-size](https://img.shields.io/github/languages/code-size/stanlyshi/Actions-OpenWrt-Lede-N1?color=blueviolet)
 
 
  ![applist](https://github.com/roacn/N1Openwrt/blob/master/imgs/N1-OpenWrt.jpg?raw=true)
