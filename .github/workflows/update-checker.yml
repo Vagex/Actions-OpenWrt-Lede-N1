@@ -1,0 +1,76 @@
+#
+# Copyright (c) 2019-2021 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# File: .github/workflows/update-checker.yml
+# Description: Source code update checker
+#
+
+name: Update Checker
+  
+on:
+  workflow_dispatch:
+    inputs:
+      update:
+        description: 'Force update'
+        required: false
+        default: 'false'
+  schedule:
+    - cron: 00 2 */3 * *
+
+env:
+    MULTIPLE_BUILD: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Get Commit Hash
+      id: getHash
+      run: |
+        git clone --depth 1 https://github.com/coolsnowwolf/lede
+        cd lede
+        echo "::set-output name=commitHash::$(git rev-parse HEAD)"
+        
+    - name: Get helloworld Commit Hash
+      id: getHash2
+      run: |
+        git clone --depth 1 https://github.com/fw876/helloworld
+        cd helloworld
+        echo "::set-output name=commitHash2::$(git rev-parse HEAD)"  
+        
+    - name: Compare Commit Hash
+      id: cacheHash
+      uses: actions/cache@v2
+      with:
+        path: .commitHash
+        key: HEAD-${{ steps.getHash.outputs.commitHash }}-${{ steps.getHash2.outputs.commitHash2 }}
+
+    - name: Save New Commit Hash
+      if: steps.cacheHash.outputs.cache-hit != 'true'
+      run: |
+        echo ${{ steps.getHash.outputs.commitHash}}-${{ steps.getHash2.outputs.commitHash2 }} | tee .commitHash
+        
+    - name: Trigger multiple build
+      if: env.MULTIPLE_BUILD == 'true' && (steps.cacheHash.outputs.cache-hit != 'true' || (github.event.inputs.update == 'true' && github.event.inputs.update  != 'false'))
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.RELEASES_TOKEN  }}
+        event-type: multiple
+        
+    - name: Trigger single build
+      if: env.MULTIPLE_BUILD != 'true' && (steps.cacheHash.outputs.cache-hit != 'true' || (github.event.inputs.update == 'true' && github.event.inputs.update  != 'false')) 
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.RELEASES_TOKEN  }}
+        event-type: single_mini
+        
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 1
