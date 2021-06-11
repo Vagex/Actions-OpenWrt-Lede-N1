@@ -5,8 +5,6 @@
 ![code-size](https://img.shields.io/github/languages/code-size/stanlyshi/Actions-OpenWrt-Lede-N1?color=blueviolet)
 
 
- ![applist](https://github.com/roacn/N1Openwrt/blob/master/imgs/N1-OpenWrt.jpg?raw=true)
-
 # 源码来源：
 
 [![Lean](https://img.shields.io/badge/source-Lean-red.svg?style=flat&logo=appveyor)](https://github.com/coolsnowwolf/lede) 
