@@ -1,59 +1,48 @@
 #=================================================
-# Description: Build Phicomm N1 OpenWrt using GitHub Actions
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
 # Lisence: MIT
-# Author: Ss
+# Author: P3TERX
+# Blog: https://p3terx.com
 #=================================================
 
-name: N1_Multiple_Version
+name: N1_Single_Plus_Version
 
 on:
   repository_dispatch:
-    types: [multiple]
+    types: [single_plus]
   workflow_dispatch:
-  schedule:
-    - cron: 0 2 * * 5
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+#  schedule:
+#    - cron: 00 05 * * 3
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
   #FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: plus.config
   DIY_SH: diy.sh
   TZ: Asia/Shanghai
   RELEASE: true
   SERVERCHAN_SCKEY: false
   BOT: true
-  
-jobs:
-  tagnamgjob:
-    runs-on: ubuntu-latest
-    outputs:
-      tagnamgoutput: ${{ steps.setuptag.outputs.tagnamg }}
 
-    steps:
-    - id: setuptag
-      run:  |
-        echo "::set-output name=tagnamg::$(date +%Y%m%d-%H%M)"
- 
-  buildopenwrtjob:
+jobs:
+  build:
     runs-on: ubuntu-18.04
-    name: Build ${{ matrix.sub_version }} 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - sub_version: mini
-            config_file: mini.config
-          - sub_version: plus
-            config_file: plus.config
-    env:
-        SUB_VERSION: ${{ matrix.sub_version }} 
-        CONFIG_FILE: ${{ matrix.config_file }} 
-    needs: tagnamgjob    
+    if: github.event.repository.owner.id == github.event.sender.id
+
     steps:
     - name: Checkout 检查项目分支
       uses: actions/checkout@main
-    
-    - name: Initialization Environment I 初始化编译环境I
+
+    - name: Initialization Environment 安装编译环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
@@ -71,30 +60,37 @@ jobs:
         cd /upload
         echo "UPLOAD=$PWD" >> $GITHUB_ENV
         
-        echo "tag_name=${{needs.tagnamgjob.outputs.tagnamgoutput}}" >> $GITHUB_ENV
-   
-    - name: Initialization Environment II 初始化编译环境II
+        echo "tag_name=$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+                        
+    - name: Clone source code 下载固件源码
       working-directory: /workdir
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt 
         #[ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        cd openwrt 
+        cd openwrt
         
-    - name: Update & Install Feeds 下载、安装插件
+    - name: Update & Install Feeds 下载安装插件
       run: |
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        
+      
     - name: Load Custom Configuration 加载自定义设置
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_SH
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_SH 
+        $GITHUB_WORKSPACE/$DIY_SH        
+     
+    - name: SSH connection to Actions SSH链接管理(CTRL+C进入链接，CTRL+D断开链接)
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}        
         
     - name: Compile Firmware 编译固件
       id: compile
@@ -108,32 +104,32 @@ jobs:
         
         make -j$(nproc) || make -j1 || make -j1 V=s
         
-        cp .config ${UPLOAD}/${SUB_VERSION}.config
+        cp .config ${UPLOAD}/plus.config
         cd bin/targets/*/*
-        cp openwrt-armvirt-64-default-rootfs.tar.gz  ${UPLOAD}/openwrt-armvirt-64-default-rootfs-${SUB_VERSION}.tar.gz
+        cp openwrt-armvirt-64-default-rootfs.tar.gz  ${UPLOAD}/openwrt-armvirt-64-default-rootfs-plus.tar.gz
         count=` find -name '*.xz' | wc -l `
         if [  $count -gt 0 ] ; then
             cp -r *.xz ${UPLOAD}/
-        fi
+        fi        
         echo "DATE=$(date "+%Y-%m-%d %H:%M")"  >> $GITHUB_ENV
-        echo "::set-output name=status::success" 
+        echo "::set-output name=status::success"       
         
-    - name: Package OpenWrt with flippy script 用flippy脚本打包
+    - name: Package OpenWrt with flippy script 使用flippy脚本打包
       uses: roacn/package-flippy-openwrt@main
       with:
         types: s905d
         out: ${{ env.UPLOAD }}
-        sub-name: ${{ env.SUB_VERSION}}
+        sub-name: plus
         openwrt-path: $GITHUB_WORKSPACE/openwrt/bin/targets/*/*
-        
-    - name: Create release 创建release标签
+   
+    - name: Create release 发布至release
       id: release
       if: steps.compile.outputs.status == 'success' && env.RELEASE == 'true' && !cancelled()
       uses: ncipollo/release-action@v1
       with:
-        name: ${{ env.DATE }} 🚀 / N1-Openwrt | 编译
+        name: ${{ env.DATE }} 🚀 / N1_Single_Plus_Version | 编译
         allowUpdates: true
-        tag: ${{ env.tag_name }}-Multiple
+        tag: ${{ env.tag_name }}-Plus
         commit: master
         token: ${{ secrets.RELEASES_TOKEN  }}
         body: |
@@ -142,27 +138,23 @@ jobs:
              1. 固件刷入U盘。
              2. cd root
              3. ./install-to-emmc.sh
-             4. 拔掉U盘，断电重启。             
+             4. 拔掉U盘，断电重启。
         artifacts:  ${{ env.UPLOAD }}/*
-
-    - name: Wechat notice 微信通知
+    
+    - name: Wechat notice 微信通知    
       uses: emon100/Action-Serverchan@v2
       if: steps.release.outputs.status == 'success' && env.SERVERCHAN_SCKEY == 'true' && !cancelled()
       with:
         SCKEY: ${{ secrets.SERVERCHAN_SCKEY }}
         text: 恭喜主人Phicomm N1固件编译成功！
-        desp: 我亲爱的✨主人✨：您「 Actions-OpenWrt-Lede-N1」仓库编译的「 ${{ env.DATE }} 🚀 / N1-Openwrt | 编译」固件顺利编译完成了！💐
-  
+        desp: 我亲爱的主人：您「 Actions-OpenWrt-Lede-N1」仓库编译的「 ${{ env.DATE }} 🚀 / N1_Single_Plus_Version | 编译」固件顺利编译完成了！
+    
     - name: Bot notice 电报机器人信息通知
       if: steps.compile.outputs.status == 'success' && env.BOT == 'true' && !cancelled()
       run: |
-        curl -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" -d "text=我亲爱的✨主人✨：您「 Actions-OpenWrt-Lede-N1」仓库编译的「 ${{ env.DATE }} 🚀 / N1-Openwrt | 编译」固件顺利编译完成了！💐" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+        curl -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" -d "text=我亲爱的✨主人✨：您使用「 Actions-OpenWrt-Lede-N1」文件夹编译的${{ env.DATE }} 「 N1_Single_Plus_Version 」固件顺利编译完成了！💐" "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
 
-  cleanjob:
-    runs-on: ubuntu-latest
-    needs: buildopenwrtjob
-    steps:      
-    - name: Remove old Releases 删除旧版 Releases
+    - name: Remove old Releases 删除旧的release
       uses: dev-drprasad/delete-older-releases@v0.1.0
       if: env.RELEASE == 'true' && !cancelled()
       with:
