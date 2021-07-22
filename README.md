@@ -1,9 +1,11 @@
-![license](https://img.shields.io/github/license/stanlyshi/Actions-OpenWrt-Lede-N1?color=ff69b4)
-![N1_plus](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/single_plus.yml/badge.svg)
-![N1_mini](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/single_mini.yml/badge.svg)
-![Build lede](https://github.com/stanlyshi/Actions-OpenWrt-Lede-N1/actions/workflows/N1_Multi.yml/badge.svg)
-![code-size](https://img.shields.io/github/languages/code-size/stanlyshi/Actions-OpenWrt-Lede-N1?color=blueviolet)
+![license](https://img.shields.io/github/license/roacn/Actions-OpenWrt-Lede-N1?color=ff69b4)
+![N1_plus](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/N1_single_plus.yml/badge.svg)
+![N1_mini](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/N1_single_mini.yml/badge.svg)
+![Build lede](https://github.com/roacn/Actions-OpenWrt-Lede-N1/actions/workflows/N1_Multi.yml/badge.svg)
+![code-size](https://img.shields.io/github/languages/code-size/roacn/Actions-OpenWrt-Lede-N1?color=blueviolet)
 
+
+ ![applist](https://github.com/roacn/N1Openwrt/blob/master/imgs/N1-OpenWrt.jpg?raw=true)
 
 # 源码来源：
 
@@ -16,9 +18,10 @@
 [![apps](https://img.shields.io/badge/app-kenzok8-violet.svg?style=flat&logo=appveyor)](https://github.com/kenzok8)
 
 
+
 # 如何使用
 1. fork项目
-2. 在secrets中创建RELEASES_TOKEN，一般一次编译要2~4小时，所以要创建一个github发布用的token。
+2. 在Settings->secrets中创建RELEASES_TOKEN，一般一次编译要2~4小时，所以要创建一个github发布用的token。
 3. 点击Actions -> Workflows -> Run workflow -> Run workflow 
 4. N1 Multiple Version 多版本编译
 5. N1 Single Version 只编译一个版本
@@ -35,17 +38,50 @@
 默认自定义防火墙: iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
 
 ## app list:（mini 图不代表最新的）
- * jd-dailybonus
- * passwall
- * ssr+
- * ServerChan
+ * adbyby-plus
+ * adguardhome
+ * airplay2
+ * amlogic
+ * amule
+ * argon-config
  * aria2
- * ddns
- * samba4
- * KMS 
- * docker
- * zerotier
+ * baidupcs-web
+ * cifs-mount
+ * cpufreq
+ * diskman
+ * dockerman
  * flowoffload
+ * frpc
+ * haproxy-tcp
+ * hd-idle
+ * jd-dailybonus
+ * kodexplorer
+ * minidlna
+ * mwan3
+ * mwan3helper
+ * netdata
+ * nfs
+ * nps
+ * onliner
+ * openclash
+ * openvpn
+ * passwall
+ * qbittorrent
+ * samba4
+ * serverchan
+ * shairplay
+ * smartdns
+ * sqm
+ * ssr-plus
+ * syncdial
+ * transmission
+ * ttyd
+ * udpxy
+ * unblockmusic
+ * wrtbwmon
+ * xlnetacc
+ * zerotier
+
  
  ![applist](https://github.com/mingxiaoyu/N1Openwrt/blob/master/imgs/mini.jpg?raw=true)
  
