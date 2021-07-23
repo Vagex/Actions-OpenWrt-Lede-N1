@@ -32,7 +32,7 @@ jobs:
     steps:
     - id: setuptag
       run:  |
-        echo "::set-output name=tagnamg::$(date +%Y%m%d-%H%M)"
+        echo "::set-output name=tagnamg::$(date +%Y%m%d%H%M)"
  
   buildopenwrtjob:
     runs-on: ubuntu-18.04
