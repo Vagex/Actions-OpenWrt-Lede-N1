@@ -59,7 +59,7 @@ jobs:
         cd /upload
         echo "UPLOAD=$PWD" >> $GITHUB_ENV
         
-        echo "tag_name=$(date +%Y%m%d-%H%M)" >> $GITHUB_ENV
+        echo "tag_name=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
                         
     - name: Clone source code 下载固件源码
       working-directory: /workdir
@@ -128,9 +128,9 @@ jobs:
       with:
         name: ${{ env.DATE }} 🚀 / N1_Single_Mini_Version | 编译
         allowUpdates: true
-        tag: ${{ env.tag_name }}-Mini
+        tag: ${{ env.tag_name }}
         commit: master
-        token: ${{ secrets.RELEASES_TOKEN  }}
+        token: ${{ secrets.RELEASES_TOKEN }}
         body: |
           默认IP：192.168.1.2 默认密码： password
           全新刷入emmc方法：
